@@ -1,5 +1,7 @@
 # drone-portainer
 
+Deploy docker stack to Portainer
+
 ```
 pipeline:
   deploy:
