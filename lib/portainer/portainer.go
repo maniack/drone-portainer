@@ -95,8 +95,8 @@ func (self *Portainer) Connect() error {
 
 func (self *Portainer) Auth(user, pass string) error {
 	args, err := json.Marshal(&struct {
-		Username string
-		Password string
+		Username string `json:"Username"`
+		Password string `json:"Password"`
 	}{
 		Username: user,
 		Password: pass,
