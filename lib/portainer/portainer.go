@@ -117,7 +117,21 @@ func (self *Portainer) Auth(user, pass string) error {
 	defer rsp.Body.Close()
 
 	if rsp.StatusCode > 200 {
-		return fmt.Errorf("Portainer API error: %s %s %s", req.Method, req.URL.String(), rsp.Status)
+		data, err := ioutil.ReadAll(rsp.Body)
+		if err != nil {
+			return err
+		}
+
+		var auth struct {
+			ERR string `json:"err"`
+		}
+
+		err = json.Unmarshal(data, &auth)
+		if err != nil {
+			return err
+		}
+
+		return fmt.Errorf("Portainer API error: %s %s %s - %s", req.Method, req.URL.String(), rsp.Status, auth.ERR)
 	}
 
 	data, err := ioutil.ReadAll(rsp.Body)
