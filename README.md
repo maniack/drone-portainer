@@ -15,5 +15,5 @@ pipeline:
       path: docker-stack.yml
       environment:
         - DEBUG=true
-    secrets: [ portainer_usersname, portainer_password ]
+    secrets: [ portainer_username, portainer_password ]
 ```
