@@ -128,7 +128,7 @@ func (p Plugin) Exec() error {
 
 	start := time.Now()
 
-	if stack != nil {
+	if stack != nil && stack.EndpointID == endpoint.Id {
 		fmt.Printf("Updating stack \"%s\"...", stack.Name)
 		if stack_config != "" {
 			err := prtnr.UpdateStackFromString(stack, stack_config, true, env...)

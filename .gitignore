@@ -81,5 +81,8 @@ _testmain.go
 *.prof
 *.db
 
+# ---> vscode
+.vscode/
+
 # ---> Name of binary
 drone-portainer
