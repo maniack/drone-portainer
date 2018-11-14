@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 
@@ -210,23 +209,7 @@ func main() {
 		cli.StringFlag{
 			Name:   "portainer.address",
 			Usage:  "portainer server address",
-			EnvVar: "PLUGIN_PORTAINER_ADDRESS,PLUGIN_ADDRESS,PORTAINER_ADDRESS",
-		},
-		cli.StringFlag{
-			Name:   "portainer.username",
-			Usage:  "portainer server username",
-			EnvVar: "PLUGIN_PORTAINER_USERNAME,PLUGIN_USERNAME,PORTAINER_USERNAME",
-		},
-		cli.StringFlag{
-			Name:   "portainer.password",
-			Usage:  "portainer server password",
-			EnvVar: "PLUGIN_PORTAINER_PASSWORD,PLUGIN_PASSWORD,PORTAINER_PASSWORD",
-		},
-		cli.StringFlag{
-			Name:   "portainer.endpoint",
-			Usage:  "portainer endpoint name",
-			EnvVar: "PLUGIN_PORTAINER_ENDPOINT,PLUGIN_ENDPOINT,PORTAINER_ENDPOINT",
-			Value:  "local",
+			EnvVar: "PLUGIN_PORTAINER_ADDRESS,PLUGIN_PORTAINER,PLUGIN_ADDRESS,PORTAINER_ADDRESS",
 		},
 		cli.BoolFlag{
 			Name:   "portainer.insecure",
@@ -234,15 +217,21 @@ func main() {
 			EnvVar: "PLUGIN_PORTAINER_INSECURE,PLUGIN_INSECURE,PORTAINER_INSECURE",
 		},
 		cli.StringFlag{
+			Name:   "portainer.endpoint",
+			Usage:  "portainer endpoint name",
+			EnvVar: "PLUGIN_PORTAINER_ENDPOINT,PLUGIN_ENDPOINT,PORTAINER_ENDPOINT",
+			Value:  "local",
+		},
+		cli.StringFlag{
 			Name:   "stack.name",
 			Usage:  "stack name",
-			EnvVar: "PLUGIN_STACK_NAME,STACK_NAME",
+			EnvVar: "PLUGIN_STACK_NAME,PLUGIN_STACK,STACK_NAME",
 			Value:  "stack",
 		},
 		cli.StringFlag{
-			Name:   "stack.path",
+			Name:   "stack.file",
 			Usage:  "stack file path",
-			EnvVar: "PLUGIN_STACK_PATH,PLUGIN_PATH,STACK_PATH",
+			EnvVar: "PLUGIN_STACK_FILE,PLUGIN_FILE,STACK_FILE",
 			Value:  "docker-compose.yml",
 		},
 		cli.StringSliceFlag{
@@ -255,21 +244,15 @@ func main() {
 			Usage:  "stack environment",
 			EnvVar: "PLUGIN_STACK_ENVIRONMENT,PLUGIN_STACK_ENV,PLUGIN_ENVIRONMENT,PLUGIN_ENV,STACK_ENVIRONMENT,STACK_ENV",
 		},
-
-		//
-		// plugin-specific parameters backward compatibility
-		//
-
 		cli.StringFlag{
-			Name:   "portainer",
-			Usage:  "portainer json config",
-			EnvVar: "PLUGIN_PORTAINER",
+			Name:   "portainer.username",
+			Usage:  "portainer server username",
+			EnvVar: "PLUGIN_PORTAINER_USERNAME,PLUGIN_USERNAME,PORTAINER_USERNAME",
 		},
-
 		cli.StringFlag{
-			Name:   "stack",
-			Usage:  "stack json config",
-			EnvVar: "PLUGIN_STACK",
+			Name:   "portainer.password",
+			Usage:  "portainer server password",
+			EnvVar: "PLUGIN_PORTAINER_PASSWORD,PLUGIN_PASSWORD,PORTAINER_PASSWORD",
 		},
 	}
 
@@ -328,77 +311,6 @@ func run(c *cli.Context) {
 			Secrets: c.StringSlice("secrets"),
 			Debug:   c.Bool("debug"),
 		},
-	}
-
-	//
-	// backward compatibility with old pipeline syntax
-	//
-
-	var (
-		config struct {
-			portainer struct {
-				Address  string `json:"address,omitempty"`
-				Username string `json:"username,omitempty"`
-				Password string `json:"password,omitempty"`
-				Insecure bool   `json:"insecure,omitempty"`
-				Endpoint string `json:"endpoint,omitempty"`
-			}
-			stack struct {
-				Name        string   `json:"name,omitempty"`
-				Path        string   `json:"path,omitempty"`
-				Environment []string `json:"environment,omitempty"`
-			}
-		}
-	)
-
-	portainer := c.String("portainer")
-	if portainer != "" {
-		err := json.Unmarshal([]byte(portainer), &config.portainer)
-		if err != nil {
-			fmt.Printf("Exited with error: %v\n", err)
-			os.Exit(1)
-		}
-
-		if config.portainer.Address != "" {
-			plugin.Config.Portainer.Address = config.portainer.Address
-		}
-
-		if config.portainer.Endpoint != "" {
-			plugin.Config.Portainer.Endpoint = config.portainer.Endpoint
-		}
-
-		if config.portainer.Insecure != false {
-			plugin.Config.Portainer.Insecure = config.portainer.Insecure
-		}
-
-		if config.portainer.Password != "" {
-			plugin.Config.Portainer.Password = config.portainer.Password
-		}
-
-		if config.portainer.Username != "" {
-			plugin.Config.Portainer.Username = config.portainer.Username
-		}
-	}
-
-	stack := c.String("stack")
-	if stack != "" {
-		err := json.Unmarshal([]byte(stack), &config.stack)
-		if err != nil {
-			fmt.Printf("Exited with error: %v\n", err)
-			os.Exit(1)
-		}
-
-		if config.stack.Name != "" {
-			plugin.Config.Stack.Name = config.stack.Name
-		}
-
-		if config.stack.Path != "" {
-			plugin.Config.Stack.Path = config.stack.Path
-		}
-
-		if len(config.stack.Environment) > 0 {
-			plugin.Config.Stack.Environment = config.stack.Environment
-		}
 	}
 
 	if err := plugin.Exec(); err != nil {
