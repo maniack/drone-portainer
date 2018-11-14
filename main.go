@@ -304,7 +304,7 @@ func run(c *cli.Context) {
 			},
 			Stack: Stack{
 				Name:        c.String("stack.name"),
-				Path:        c.String("stack.path"),
+				Path:        c.String("stack.file"),
 				Config:      c.StringSlice("stack.config"),
 				Environment: c.StringSlice("stack.environment"),
 			},
